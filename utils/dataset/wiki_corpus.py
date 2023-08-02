@@ -187,7 +187,7 @@ class WikiCorpusDataset:
         # if corpus file at given level exists, skip
         fname = f"{self.output_dir}/{category}-{self.split_level}.csv"
         if os.path.exists(fname):
-            print(f"skipping: {category}-{self.split_level} file already exists!")
+            print(f"skipped: {category}-{self.split_level} file already exists!")
             return
         titles, parallel_corpus, ids = self._parse_all_xml_in_category(f"{self.dataset_dir}/{category}")
         # if titles file exists, skip
@@ -217,7 +217,7 @@ class WikiCorpusDataset:
                             for chunk in csv_subfile:
                                 csv_file.write(chunk)
             else:
-                print(f"skipping: {self.split_level}-ALL file already exists!")
+                print(f"skipped: {self.split_level}-ALL file already exists!")
         else:
             raise ValueError("merging only works with category=ALL")
         return
