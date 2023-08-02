@@ -1,17 +1,21 @@
-# external libraries
-from tqdm.autonotebook import tqdm
 # python libraries
+import warnings
 import os
 from typing import Tuple, List
 from xml.etree.ElementTree import ParseError, parse as xml_parse
+# external libraries
+from tqdm import TqdmExperimentalWarning
+warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
+from tqdm.autonotebook import tqdm
 
 
-class WikiCorpus:
+class WikiCorpusDataset:
     def __init__(self, *, 
         split_level="sen", 
         category="ALL", 
         dataset_dir=r"./data/wiki_corpus_2.01", 
-        output_dir=r"./data-post/wiki_corpus_2.01"
+        output_dir=r"./data-post/wiki_corpus_2.01",
+        display_progress=True
     ):
         """Initializes a WikiCorpus loader class.
 
@@ -32,12 +36,16 @@ class WikiCorpus:
         self.category = category
         self.dataset_dir = dataset_dir
         self.output_dir = output_dir
+        self.disable_progress = not display_progress
 
         self.parse_error_list   = []
         self.parse_error_count  = 0
         self.parse_error_errors = []
         self._categories = None
 
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        
         assert split_level not in ["top"], "'top' is currently disabled"
         assert split_level in ["sen", "top"], "invalid split level"
         assert category in self.categories or category == "ALL", "invalid category"
@@ -120,7 +128,7 @@ class WikiCorpus:
         for (_, _, filenames) in os.walk(cat_path):
             # extend filenames only
             parallel_corpus, titles, ids = [], [], []
-            for file in tqdm(filenames, position=1, leave=False):
+            for file in tqdm(filenames, position=1, leave=False, disable=self.disable_progress):
                 data = self._parse_wiki_corpus_xml(f"{cat_path}/{file}")
                 if data is not None:
                     title_both, corpora, id = data
@@ -179,7 +187,7 @@ class WikiCorpus:
         # if corpus file at given level exists, skip
         fname = f"{self.output_dir}/{category}-{self.split_level}.csv"
         if os.path.exists(fname):
-            print(f"skipping file [{fname}], file already exists!")
+            print(f"skipping: {category}-{self.split_level} file already exists!")
             return
         titles, parallel_corpus, ids = self._parse_all_xml_in_category(f"{self.dataset_dir}/{category}")
         # if titles file exists, skip
@@ -188,13 +196,31 @@ class WikiCorpus:
         self._save_corpus_as_csv(parallel_corpus, fname)
         return
 
-    def create_csv(self):
+    def create_csv(self) -> None:
         """Creates all required wiki_corpus csv files. Does nothing if the files already exist."""
         if self.category == "ALL":
-            for category in tqdm(self.categories):
+            for category in tqdm(self.categories, disable=self.disable_progress):
                 self._create_category_csv(category)
         else:
             self._create_category_csv(self.category)
+
+    def join_csv(self) -> None:
+        """Merges various categories csv at given level into a single file."""
+        if self.category == "ALL":
+            parent_dir = self.output_dir[:self.output_dir.rfind("/")]
+            merge_file = f"{parent_dir}/wiki_corpus_{self.split_level}_ALL.csv"
+            if not os.path.exists(merge_file):
+                with open(merge_file, "wb+") as csv_file:
+                    for category in self.categories:
+                        fname = f"{self.output_dir}/{category}-{self.split_level}.csv"
+                        with open(fname, "rb+") as csv_subfile:
+                            for chunk in csv_subfile:
+                                csv_file.write(chunk)
+            else:
+                print(f"skipping: {self.split_level}-ALL file already exists!")
+        else:
+            raise ValueError("merging only works with category=ALL")
+        return
 
     def get_errors(self) -> Tuple[int, List[str], List[ParseError]]:
         """Returns parsing errors.

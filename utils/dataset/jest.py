@@ -1,7 +1,7 @@
 import tarfile
 import os
 
-class JEST:
+class JESTDataset:
     def __init__(self,
         dataset_path=r"./data/raw.tar.gz", 
         output_path=r"./data-post/jest.csv"
