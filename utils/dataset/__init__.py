@@ -1,11 +1,11 @@
-from .jest import JESTDataset
+from .jesc import JESCDataset
 from .massive_translation import MassiveTranslationDataset
 from .snow_simplified import SnowSimplifiedDataset
 from .tatoeba import TatoebaDataset
 from .wiki_corpus import WikiCorpusDataset
 
 __all__ = [
-    "JESTDataset", 
+    "JESCDataset", 
     "MassiveTranslationDataset",
     "SnowSimplifiedDataset",
     "TatoebaDataset",
