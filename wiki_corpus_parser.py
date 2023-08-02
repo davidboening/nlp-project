@@ -19,7 +19,7 @@ class WikiCorpus:
         ----------
         split_level : str
             splits corpus at this level: sen, splits at individial sentences,
-            par, at paragraphs, top, at file/topic level.
+            top, at file/topic level.
         category : str
             if "ALL" all categories, otherwise a valid category to restrict to;
             use WikiCorpus().categories to get a full list.
@@ -38,8 +38,8 @@ class WikiCorpus:
         self.parse_error_errors = []
         self._categories = None
 
-        assert split_level not in ["par", "top"], "split level is currently disabled"
-        assert split_level in ["sen", "par", "top"], "invalid split level"
+        assert split_level not in ["top"], "'top' is currently disabled"
+        assert split_level in ["sen", "top"], "invalid split level"
         assert category in self.categories or category == "ALL", "invalid category"
         assert os.path.exists(dataset_dir), "dataset directory is invalid or does not exist"
         assert os.path.exists(output_dir),  "output directory is invalid or does not exist"
@@ -80,17 +80,19 @@ class WikiCorpus:
             title_en = title_en_data.text
 
             if self.split_level == "sen":
-                sentences = root.findall("./par/sen")
+                sentences = root.findall(".//*[@id]")
                 parallel_corpus = []
                 for s in sentences:
+                    # sec (section) and tit (title) are excluded
+                    if s.tag in ["par", "sec", "tit"]:
+                        continue
+                    assert s.tag == "sen", f"{s.tag}"
                     source_s = s.find("j").text
                     target_s_data = s.findall("e")[-1]
                     assert (target_s_data.attrib["type"] == "check")
                     target_s = target_s_data.text
                     parallel_corpus.append((source_s, target_s))
                 return (title_ja, title_en), parallel_corpus, file_id
-            elif self.split_level == "par":
-                assert True
             elif self.split_level == "top":
                 assert True
             else: assert True
