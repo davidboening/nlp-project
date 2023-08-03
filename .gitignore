@@ -2,6 +2,7 @@
 venv/
 data/
 data-post/
+.cache/
 
 
 # Byte-compiled / optimized / DLL files

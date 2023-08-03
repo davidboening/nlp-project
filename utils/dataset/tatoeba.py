@@ -2,25 +2,25 @@
 from datasets import load_dataset
 # python libraries
 import os
+# local libraries
+from .settings import DatasetConfig
 
 class TatoebaDataset:
-    def __init__(self,
-        cache_dir=r"./data", 
-        output_path=r"./data-post/tatoeba.csv"
-    ):
-        self.dataset_path = cache_dir
-        self.output_path = output_path
-
-    def create_csv(self):
-        if os.path.exists(self.output_path):
-            print(f"skipped: tatoeba file already exists!")
+    @staticmethod
+    def create_csv(force_override=False):
+        output_path = f"{DatasetConfig.PROCESSED_DATA_DIR}/{DatasetConfig.TATOEBA_OUT_NAME}"
+        if not force_override and os.path.exists(output_path):
+            print(DatasetConfig.SKIPPED_MSG_FORMAT.format(file=DatasetConfig.TATOEBA_OUT_NAME))
             return
-        dataset = load_dataset("tatoeba", lang1="en", lang2="ja", cache_dir=self.dataset_path)
-        with open(self.output_path, "wb+") as csv_file:
-            header_str = f'en_sentence, ja_sentence\n'
+        dataset = load_dataset("tatoeba", lang1="en", lang2="ja", cache_dir=DatasetConfig.HF_DATASET_RAW_DIR)
+        with open(output_path, "wb+") as csv_file:
+            header_str = DatasetConfig.CSV_HEADER_STR
             csv_file.write(header_str.encode("utf-8"))
             for rec in dataset["train"]["translation"]:
                 en_s, ja_s = rec["en"], rec["ja"]
                 out_line = f'"{en_s}", "{ja_s}"\n'
                 csv_file.write(out_line.encode("utf-8"))
         return
+    @staticmethod
+    def info():
+        print(DatasetConfig.TATOEBA_INFO)
