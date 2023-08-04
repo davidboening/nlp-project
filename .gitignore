@@ -1,7 +1,7 @@
 ### costum filters
 venv/
 data/
-data-post/
+data-csv/
 .cache/
 
 

@@ -7,10 +7,10 @@ class DatasetConfig:
     CSV_HEADER_STR = "en_sentence,ja_sentence\n" 
     SKIPPED_MSG_FORMAT = "skipped: {file} file already exists!"
     
-    HF_DATASET_RAW_DIR = r"./data"
-    PROCESSED_DATA_DIR = r"./data-post"
+    DATASET_RAW_DIR = r"./data"
+    DATASET_PROCESSED_DIR = r"./data-csv"
 
-    JESC_RAW_PATH = r"./data/JESC/raw.tar.gz"
+    JESC_DOWNLOAD_URL = r"https://nlp.stanford.edu/projects/jesc/data/raw.tar.gz"
     JESC_OUT_NAME = r"jesc.csv"
     JESC_INFO = "Webpage: https://nlp.stanford.edu/projects/jesc/\n" \
                 "Paper  : https://arxiv.org/abs/1710.10639\n" \
@@ -34,6 +34,7 @@ class DatasetConfig:
     
     WIKI_CORPUS_RAW_PATH = r"./data/wiki_corpus_2.01"
     WIKI_CORPUS_OUT_NAME = r"wiki_corpus.csv"
+    WIKI_CORPUS_DOWNLOAD_URL = r"https://github.com/venali/BilingualCorpus/archive/refs/heads/master.zip"
     WIKI_CORPUS_INFO = "Webpage : https://github.com/venali/BilingualCorpus/\n" \
                        "Summary : a large scale corpus of manually translated Japanese sentences\n" \
                        "          extracted from Wikipedia's Kyoto Articles (~500k sentences)"
