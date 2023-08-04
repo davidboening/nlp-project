@@ -4,10 +4,13 @@ import warnings, os, re
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 from xml.etree.ElementTree import ParseError, parse as xml_parse
+
 # external libraries
 from tqdm import TqdmExperimentalWarning
+
 warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
 from tqdm.autonotebook import tqdm
+
 # local libraries
 from .settings import DatasetConfig
 
@@ -18,7 +21,11 @@ class WikiCorpusDataset:
         # check processed file presence
         output_path = f"{DatasetConfig.DATASET_PROCESSED_DIR}/{DatasetConfig.WIKI_CORPUS_OUT_NAME}"
         if not force_override and os.path.exists(output_path):
-            print(DatasetConfig.SKIPPED_MSG_FORMAT.format(file=DatasetConfig.WIKI_CORPUS_OUT_NAME))
+            print(
+                DatasetConfig.SKIPPED_MSG_FORMAT.format(
+                    file=DatasetConfig.WIKI_CORPUS_OUT_NAME
+                )
+            )
             return
         WikiCorpusDataset._download_raw()
         # create csv file
@@ -26,23 +33,27 @@ class WikiCorpusDataset:
         with open(output_path, "wb+") as csv_file:
             header_str = DatasetConfig.CSV_HEADER_STR
             csv_file.write(header_str.encode("utf-8"))
-            with ZipFile(f"{DatasetConfig.DATASET_RAW_DIR}/wiki_corpus/master.zip", mode="r") as zhf:
+            with ZipFile(
+                f"{DatasetConfig.DATASET_RAW_DIR}/wiki_corpus/master.zip", mode="r"
+            ) as zhf:
                 file_list = zhf.namelist()
                 progress_bar = tqdm(desc="Parsing XML files", unit=" Files")
                 for file in file_list:
                     if is_xml.match(file):
                         with zhf.open(file, "r") as xml_fh:
                             # if xml parse does not fail add title and sentences
-                            if (res := WikiCorpusDataset._parse_wiki_corpus_xml(xml_fh)) is not None:
+                            if (
+                                res := WikiCorpusDataset._parse_wiki_corpus_xml(xml_fh)
+                            ) is not None:
                                 (ja_t, en_t), sentences, _ = res
                                 out_line = f'"{en_t}","{ja_t}"\n'
                                 csv_file.write(out_line.encode("utf-8"))
-                                for (ja_s, en_s) in sentences:
+                                for ja_s, en_s in sentences:
                                     out_line = f'"{en_s}","{ja_s}"\n'
                                     csv_file.write(out_line.encode("utf-8"))
                         progress_bar.update(1)
         return
-    
+
     @staticmethod
     def info():
         print(DatasetConfig.WIKI_CORPUS_INFO)
@@ -56,22 +67,31 @@ class WikiCorpusDataset:
         output_path = f"{output_dir}/master.zip"
         if force_download or not os.path.exists(output_path):
             progress_bar = None
+
             def log_progress(c, s, t):
                 nonlocal progress_bar
                 if progress_bar is None:
-                    progress_bar = tqdm(desc="Downloading Dataset", unit='B', unit_scale=True, unit_divisor=1000)
+                    progress_bar = tqdm(
+                        desc="Downloading Dataset",
+                        unit="B",
+                        unit_scale=True,
+                        unit_divisor=1000,
+                    )
                 progress_bar.update(s)
+
             urlretrieve(
-                url=DatasetConfig.WIKI_CORPUS_DOWNLOAD_URL, 
+                url=DatasetConfig.WIKI_CORPUS_DOWNLOAD_URL,
                 filename=output_path,
-                reporthook=log_progress
+                reporthook=log_progress,
             )
         return
-    
+
     @staticmethod
-    def _parse_wiki_corpus_xml(xml_file_path, debug=False) -> Tuple[Tuple[str, str], List[Tuple[str, str]], str]:
+    def _parse_wiki_corpus_xml(
+        xml_file_path, debug=False
+    ) -> Tuple[Tuple[str, str], List[Tuple[str, str]], str]:
         """Given a path to an xml wiki_corpus file returns title, corpus and id.
-        
+
         Parameters
         ----------
         xml_file : str
@@ -92,7 +112,7 @@ class WikiCorpusDataset:
             title_data = root.find("tit")
             title_ja = title_data.find("j").text
             title_en_data = title_data.findall("e")[-1]
-            assert (title_en_data.attrib["type"] == "check")
+            assert title_en_data.attrib["type"] == "check"
             title_en = title_en_data.text
 
             sentences = root.findall(".//*[@id]")
@@ -104,7 +124,7 @@ class WikiCorpusDataset:
                 assert s.tag == "sen", f"{s.tag}"
                 source_s = s.find("j").text
                 target_s_data = s.findall("e")[-1]
-                assert (target_s_data.attrib["type"] == "check")
+                assert target_s_data.attrib["type"] == "check"
                 target_s = target_s_data.text
                 parallel_corpus.append((source_s, target_s))
             return (title_ja, title_en), parallel_corpus, file_id

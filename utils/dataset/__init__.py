@@ -5,9 +5,9 @@ from .tatoeba import TatoebaDataset
 from .wiki_corpus import WikiCorpusDataset
 
 __all__ = [
-    "JESCDataset", 
+    "JESCDataset",
     "MassiveTranslationDataset",
     "SnowSimplifiedDataset",
     "TatoebaDataset",
-    "WikiCorpusDataset"
+    "WikiCorpusDataset",
 ]
