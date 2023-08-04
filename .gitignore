@@ -1,6 +1,6 @@
 ### costum filters
 venv/
-data/
+data-raw/
 data-csv/
 .cache/
 

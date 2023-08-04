@@ -7,7 +7,7 @@ class DatasetConfig:
     CSV_HEADER_STR = "en_sentence,ja_sentence\n" 
     SKIPPED_MSG_FORMAT = "skipped: {file} file already exists!"
     
-    DATASET_RAW_DIR = r"./data"
+    DATASET_RAW_DIR = r"./data-raw"
     DATASET_PROCESSED_DIR = r"./data-csv"
 
     JESC_DOWNLOAD_URL = r"https://nlp.stanford.edu/projects/jesc/data/raw.tar.gz"
