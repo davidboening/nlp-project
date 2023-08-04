@@ -1,7 +1,5 @@
 # python libraries
-import tarfile
-import os
-import os, warnings
+import tarfile, os, warnings
 from urllib.request import urlretrieve
 # external libraries
 from tqdm import TqdmExperimentalWarning
@@ -49,7 +47,7 @@ class JESCDataset:
             def log_progress(c, s, t):
                 nonlocal progress_bar
                 if progress_bar is None:
-                    progress_bar = tqdm(total=t, desc="Downloading Dataset", unit='B', unit_scale=True, unit_divisor=1000)
+                    progress_bar = tqdm(desc="Downloading Dataset", unit='B', unit_scale=True, unit_divisor=1000)
                 progress_bar.update(s)
             urlretrieve(
                 url=DatasetConfig.JESC_DOWNLOAD_URL, 

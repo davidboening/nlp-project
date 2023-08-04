@@ -32,7 +32,6 @@ class DatasetConfig:
                    "Summary    : a collection of sentences from https://tatoeba.org/en/, contains\n" \
                    "             over 400 languages ([en-ja] 200k sentences)"
     
-    WIKI_CORPUS_RAW_PATH = r"./data/wiki_corpus_2.01"
     WIKI_CORPUS_OUT_NAME = r"wiki_corpus.csv"
     WIKI_CORPUS_DOWNLOAD_URL = r"https://github.com/venali/BilingualCorpus/archive/refs/heads/master.zip"
     WIKI_CORPUS_INFO = "Webpage : https://github.com/venali/BilingualCorpus/\n" \
