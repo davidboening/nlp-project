@@ -34,6 +34,8 @@ class MassiveTranslationDataset:
             dataset["validation"]["ja_JP"],
             dataset["test"]["ja_JP"],
         )
+        if not os.path.exists(DatasetConfig.DATASET_PROCESSED_DIR):
+            os.makedirs(DatasetConfig.DATASET_PROCESSED_DIR)
         with open(output_path, "wb+") as csv_file:
             header_str = DatasetConfig.CSV_HEADER_STR
             csv_file.write(header_str.encode("utf-8"))

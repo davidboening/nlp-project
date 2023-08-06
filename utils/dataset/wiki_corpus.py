@@ -28,6 +28,8 @@ class WikiCorpusDataset:
             )
             return
         WikiCorpusDataset._download_raw()
+        if not os.path.exists(DatasetConfig.DATASET_PROCESSED_DIR):
+            os.makedirs(DatasetConfig.DATASET_PROCESSED_DIR)
         # create csv file
         is_xml = re.compile(r"BilingualCorpus-master/wiki_corpus_2.01/[A-Z]{3}/.*\.xml")
         with open(output_path, "wb+") as csv_file:

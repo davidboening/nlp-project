@@ -27,6 +27,8 @@ class JESCDataset:
             )
             return
         JESCDataset._download_raw()
+        if not os.path.exists(DatasetConfig.DATASET_PROCESSED_DIR):
+            os.makedirs(DatasetConfig.DATASET_PROCESSED_DIR)
         # create csv file
         with open(output_path, "wb+") as csv_file:
             header_str = DatasetConfig.CSV_HEADER_STR

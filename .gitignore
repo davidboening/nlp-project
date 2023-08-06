@@ -3,7 +3,7 @@ venv/
 data-raw/
 data-csv/
 .cache/
-
+wandb/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
