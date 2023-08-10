@@ -5,27 +5,34 @@ from datasets import load_dataset
 import os
 
 # local libraries
-from .settings import DatasetConfig
+from .dataset_loader import DatasetLoader
 
 
 class SnowSimplifiedDataset:
+    OUT_NAME = r"snow_simplified.csv"
+    INFO = (
+        "Webpage: https://huggingface.co/datasets/snow_simplified_japanese_corpus\n"
+        "Summary: Japanese-English sentence pairs, all Japanese sentences have\n"
+        "         a simplified counterpart (85k(x2) sentences)"
+    )
+
     @staticmethod
     def create_csv(force_override=False):
-        output_path = f"{DatasetConfig.DATASET_PROCESSED_DIR}/{DatasetConfig.SNOW_SIMPLIFIED_OUT_NAME}"
+        output_path = f"{DatasetLoader.DATASET_PROCESSED_DIR}/{SnowSimplifiedDataset.OUT_NAME}"
         if not force_override and os.path.exists(output_path):
             print(
-                DatasetConfig.SKIPPED_MSG_FORMAT.format(
-                    file=DatasetConfig.SNOW_SIMPLIFIED_OUT_NAME
+                DatasetLoader.SKIPPED_MSG_FORMAT.format(
+                    file=SnowSimplifiedDataset.OUT_NAME
                 )
             )
             return
         dataset = load_dataset(
-            "snow_simplified_japanese_corpus", cache_dir=DatasetConfig.DATASET_RAW_DIR
+            "snow_simplified_japanese_corpus", cache_dir=DatasetLoader.DATASET_RAW_DIR
         )
-        if not os.path.exists(DatasetConfig.DATASET_PROCESSED_DIR):
-            os.makedirs(DatasetConfig.DATASET_PROCESSED_DIR)
+        if not os.path.exists(DatasetLoader.DATASET_PROCESSED_DIR):
+            os.makedirs(DatasetLoader.DATASET_PROCESSED_DIR)
         with open(output_path, "wb+") as csv_file:
-            header_str = DatasetConfig.CSV_HEADER_STR
+            header_str = DatasetLoader.CSV_HEADER_STR
             csv_file.write(header_str.encode("utf-8"))
             for rec in dataset["train"]:
                 en_s, ja1_s, ja2_s = (
@@ -41,4 +48,21 @@ class SnowSimplifiedDataset:
 
     @staticmethod
     def info():
-        print(DatasetConfig.SNOW_SIMPLIFIED_INFO)
+        print(SnowSimplifiedDataset.INFO)
+        return
+    
+    @staticmethod
+    def stats(en_tokenizer, ja_tokenizer, num_proc=4):
+        csv_path = (
+            f"{DatasetLoader.DATASET_PROCESSED_DIR}/{SnowSimplifiedDataset.OUT_NAME}"
+        )
+        if not os.path.exists(csv_path):
+            print(DatasetLoader.MISSING_FILE_FORMAT.format(file=SnowSimplifiedDataset.OUT_NAME))
+            return
+        DatasetLoader.stats(
+            csv_path, 
+            en_tokenizer=en_tokenizer, 
+            ja_tokenizer=ja_tokenizer, 
+            num_proc=num_proc
+        )
+        return

@@ -12,31 +12,41 @@ warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
 from tqdm.autonotebook import tqdm
 
 # local libraries
-from .settings import DatasetConfig
+from .dataset_loader import DatasetLoader
 
 
 class WikiCorpusDataset:
+    OUT_NAME = r"wiki_corpus.csv"
+    DOWNLOAD_URL = (
+        r"https://github.com/venali/BilingualCorpus/archive/refs/heads/master.zip"
+    )
+    INFO = (
+        "Webpage : https://github.com/venali/BilingualCorpus/\n"
+        "Summary : a large scale corpus of manually translated Japanese sentences\n"
+        "          extracted from Wikipedia's Kyoto Articles (~500k sentences)"
+    )
+
     @staticmethod
     def create_csv(force_override=False):
         # check processed file presence
-        output_path = f"{DatasetConfig.DATASET_PROCESSED_DIR}/{DatasetConfig.WIKI_CORPUS_OUT_NAME}"
+        output_path = f"{DatasetLoader.DATASET_PROCESSED_DIR}/{WikiCorpusDataset.OUT_NAME}"
         if not force_override and os.path.exists(output_path):
             print(
-                DatasetConfig.SKIPPED_MSG_FORMAT.format(
-                    file=DatasetConfig.WIKI_CORPUS_OUT_NAME
+                DatasetLoader.SKIPPED_MSG_FORMAT.format(
+                    file=WikiCorpusDataset.OUT_NAME
                 )
             )
             return
         WikiCorpusDataset._download_raw()
-        if not os.path.exists(DatasetConfig.DATASET_PROCESSED_DIR):
-            os.makedirs(DatasetConfig.DATASET_PROCESSED_DIR)
+        if not os.path.exists(DatasetLoader.DATASET_PROCESSED_DIR):
+            os.makedirs(DatasetLoader.DATASET_PROCESSED_DIR)
         # create csv file
         is_xml = re.compile(r"BilingualCorpus-master/wiki_corpus_2.01/[A-Z]{3}/.*\.xml")
         with open(output_path, "wb+") as csv_file:
-            header_str = DatasetConfig.CSV_HEADER_STR
+            header_str = DatasetLoader.CSV_HEADER_STR
             csv_file.write(header_str.encode("utf-8"))
             with ZipFile(
-                f"{DatasetConfig.DATASET_RAW_DIR}/wiki_corpus/master.zip", mode="r"
+                f"{DatasetLoader.DATASET_RAW_DIR}/wiki_corpus/master.zip", mode="r"
             ) as zhf:
                 file_list = zhf.namelist()
                 progress_bar = tqdm(desc="Parsing XML files", unit=" Files")
@@ -48,9 +58,16 @@ class WikiCorpusDataset:
                                 res := WikiCorpusDataset._parse_wiki_corpus_xml(xml_fh)
                             ) is not None:
                                 (ja_t, en_t), sentences, _ = res
-                                out_line = f'"{en_t}","{ja_t}"\n'
-                                csv_file.write(out_line.encode("utf-8"))
+                                if en_t is not None and len(en_t) > 1:
+                                    en_t = en_t.replace('"', '""')
+                                    ja_t = ja_t.replace('"', "")
+                                    out_line = f'"{en_t}","{ja_t}"\n'
+                                    csv_file.write(out_line.encode("utf-8"))
                                 for ja_s, en_s in sentences:
+                                    if en_s is None or len(en_s) < 2:
+                                        continue
+                                    en_s = en_s.replace('"', '""')
+                                    ja_s = ja_s.replace('"', "")
                                     out_line = f'"{en_s}","{ja_s}"\n'
                                     csv_file.write(out_line.encode("utf-8"))
                         progress_bar.update(1)
@@ -58,12 +75,29 @@ class WikiCorpusDataset:
 
     @staticmethod
     def info():
-        print(DatasetConfig.WIKI_CORPUS_INFO)
+        print(WikiCorpusDataset.INFO)
+        return
+    
+    @staticmethod
+    def stats(en_tokenizer, ja_tokenizer, num_proc=4):
+        csv_path = (
+            f"{DatasetLoader.DATASET_PROCESSED_DIR}/{WikiCorpusDataset.OUT_NAME}"
+        )
+        if not os.path.exists(csv_path):
+            print(DatasetLoader.MISSING_FILE_FORMAT.format(file=WikiCorpusDataset.OUT_NAME))
+            return
+        DatasetLoader.stats(
+            csv_path, 
+            en_tokenizer=en_tokenizer, 
+            ja_tokenizer=ja_tokenizer, 
+            num_proc=num_proc
+        )
+        return
 
     @staticmethod
     def _download_raw(force_download=False):
         # check raw file presence
-        output_dir = f"{DatasetConfig.DATASET_RAW_DIR}/wiki_corpus"
+        output_dir = f"{DatasetLoader.DATASET_RAW_DIR}/wiki_corpus"
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         output_path = f"{output_dir}/master.zip"
@@ -82,7 +116,7 @@ class WikiCorpusDataset:
                 progress_bar.update(s)
 
             urlretrieve(
-                url=DatasetConfig.WIKI_CORPUS_DOWNLOAD_URL,
+                url=WikiCorpusDataset.DOWNLOAD_URL,
                 filename=output_path,
                 reporthook=log_progress,
             )
@@ -128,6 +162,8 @@ class WikiCorpusDataset:
                 target_s_data = s.findall("e")[-1]
                 assert target_s_data.attrib["type"] == "check"
                 target_s = target_s_data.text
+                if source_s is None or target_s is None:
+                    continue
                 parallel_corpus.append((source_s, target_s))
             return (title_ja, title_en), parallel_corpus, file_id
 

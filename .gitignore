@@ -4,6 +4,7 @@ data-raw/
 data-csv/
 .cache/
 wandb/
+.checkpoints/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
