@@ -26,7 +26,12 @@ class DatasetLoader(ABC):
     
     @abstractmethod
     def info():
-        """Returns a short description of the dataset"""
+        """Prints a short description of the dataset"""
+        pass
+
+    @abstractmethod
+    def load(**kwargs):
+        """Returns the dataset"""
         pass
 
     @abstractmethod
@@ -56,9 +61,9 @@ class DatasetLoader(ABC):
         print(
             f"Showing statistic for {en_len.size:,} sentences:\n"
             f"\ten[tokens] : Avg. {en_len.mean():5.2f} | Min. {en_len.min():5} | Max. {en_len.max():5} |"
-            f" >32. {(en_len > 32).sum():7,} | >64. {(en_len > 64).sum():5} |"
-            f" >128. {(en_len > 128).sum():5} | >256. {(en_len > 256).sum():5}\n"
+            f" >16. {(en_len > 16).sum():7,} | >32. {(en_len > 32).sum():5} |"
+            f" >64. {(en_len > 64).sum():5} | >128. {(en_len > 128).sum():5}\n"
             f"\tja[tokens] : Avg. {ja_len.mean():5.2f} | Min. {ja_len.min():5} | Max. {ja_len.max():5} |"
-            f" >32. {(ja_len > 32).sum():7,} | >64. {(ja_len > 64).sum():5} |"
-            f" >128. {(ja_len > 128).sum():5} | >256. {(ja_len > 256).sum():5}"
+            f" >16. {(ja_len > 16).sum():7,} | >32. {(ja_len > 32).sum():5} |"
+            f" >64. {(ja_len > 64).sum():5} | >128. {(ja_len > 128).sum():5}"
         )

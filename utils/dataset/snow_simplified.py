@@ -66,3 +66,13 @@ class SnowSimplifiedDataset:
             num_proc=num_proc
         )
         return
+    
+    @staticmethod
+    def load(**kwargs):
+        csv_path = (
+            f"{DatasetLoader.DATASET_PROCESSED_DIR}/{SnowSimplifiedDataset.OUT_NAME}"
+        )
+        if not os.path.exists(csv_path):
+            print(DatasetLoader.MISSING_FILE_FORMAT.format(file=SnowSimplifiedDataset.OUT_NAME))
+            return
+        return load_dataset("csv", data_files=csv_path, **kwargs)
