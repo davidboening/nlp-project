@@ -154,9 +154,9 @@ class EnJaDatasetMaker():
             trg_tokens = decoder_tokenizer(sample["target"], return_tensors="pt")
             
             sample["length"]         = src_tokens.input_ids.shape[1]
-            sample["input_ids"]      = src_tokens.input_ids
-            sample["attention_mask"] = src_tokens.attention_mask
-            sample["labels"]         = trg_tokens.input_ids
+            sample["input_ids"]      = src_tokens.input_ids.flatten()
+            sample["attention_mask"] = src_tokens.attention_mask.flatten()
+            sample["labels"]         = trg_tokens.input_ids.flatten()
             
             return sample
         
