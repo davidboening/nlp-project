@@ -1,5 +1,5 @@
 # python libraries
-from typing import List, TypeAlias, Tuple, Callable
+from typing import List, Tuple, Callable, NewType
 from dataclasses import dataclass
 import os, random
 
@@ -9,8 +9,7 @@ from datasets import concatenate_datasets, load_from_disk, Dataset
 # local libraries
 from .dataset_base import EnJaDataset
 
-
-DatasetID : TypeAlias = str
+DatasetID = NewType('DatasetID', str)
 
 @dataclass
 class EnJaDatasetSample:
@@ -35,7 +34,7 @@ class EnJaDatasetMaker():
     """Prepares a dataset for training from various sources."""
     
     @staticmethod
-    def load_dataset(dataset_id : DatasetID) -> Dataset | None:
+    def load_dataset(dataset_id : DatasetID) -> Dataset:
         """Returns the dataset with given id if it exists."""
         save_dir = (
             f"{EnJaDataset.DATASET_FINAL_DIR}/{dataset_id}"
