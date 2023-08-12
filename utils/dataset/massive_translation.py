@@ -1,15 +1,15 @@
-# external libraries
-from datasets import load_dataset
-
 # python libraries
 import os
 import itertools
 
+# external libraries
+from datasets import load_dataset, enable_progress_bar, disable_progress_bar
+
 # local libraries
-from .dataset_loader import DatasetLoader
+from .dataset_base import EnJaDataset
 
 
-class MassiveTranslationDataset(DatasetLoader):
+class MassiveTranslation(EnJaDataset):
     OUT_NAME = r"massive_translation.csv"
     INFO = (
         "Webpage: https://huggingface.co/datasets/Amani27/massive_translation_dataset\n"
@@ -19,17 +19,17 @@ class MassiveTranslationDataset(DatasetLoader):
 
     @staticmethod
     def create_csv(force_override=False):
-        output_path = f"{DatasetLoader.DATASET_PROCESSED_DIR}/{MassiveTranslationDataset.OUT_NAME}"
+        output_path = f"{EnJaDataset.DATASET_PROCESSED_DIR}/{MassiveTranslation.OUT_NAME}"
         if not force_override and os.path.exists(output_path):
             print(
-                DatasetLoader.SKIPPED_MSG_FORMAT.format(
-                    file=MassiveTranslationDataset.OUT_NAME
+                EnJaDataset.SKIPPED_MSG_FORMAT.format(
+                    file=MassiveTranslation.OUT_NAME
                 )
             )
             return
         dataset = load_dataset(
             "Amani27/massive_translation_dataset",
-            cache_dir=DatasetLoader.DATASET_RAW_DIR,
+            cache_dir=EnJaDataset.DATASET_RAW_DIR,
         )
         en_text = itertools.chain(
             dataset["train"]["en_US"],
@@ -41,10 +41,10 @@ class MassiveTranslationDataset(DatasetLoader):
             dataset["validation"]["ja_JP"],
             dataset["test"]["ja_JP"],
         )
-        if not os.path.exists(DatasetLoader.DATASET_PROCESSED_DIR):
-            os.makedirs(DatasetLoader.DATASET_PROCESSED_DIR)
+        if not os.path.exists(EnJaDataset.DATASET_PROCESSED_DIR):
+            os.makedirs(EnJaDataset.DATASET_PROCESSED_DIR)
         with open(output_path, "wb+") as csv_file:
-            header_str = DatasetLoader.CSV_HEADER_STR
+            header_str = EnJaDataset.CSV_HEADER_STR
             csv_file.write(header_str.encode("utf-8"))
             for en_s, ja_s in zip(en_text, ja_text):
                 out_line = f'"{en_s}","{ja_s}"\n'
@@ -53,31 +53,20 @@ class MassiveTranslationDataset(DatasetLoader):
 
     @staticmethod
     def info():
-        print(MassiveTranslationDataset.INFO)
+        print(MassiveTranslation.INFO)
         return
-    
+
     @staticmethod
-    def stats(en_tokenizer, ja_tokenizer, num_proc=4):
+    def load():
         csv_path = (
-            f"{DatasetLoader.DATASET_PROCESSED_DIR}/{MassiveTranslationDataset.OUT_NAME}"
+            f"{EnJaDataset.DATASET_PROCESSED_DIR}/{MassiveTranslation.OUT_NAME}"
         )
         if not os.path.exists(csv_path):
-            print(DatasetLoader.MISSING_FILE_FORMAT.format(file=MassiveTranslationDataset.OUT_NAME))
-            return
-        DatasetLoader.stats(
-            csv_path, 
-            en_tokenizer=en_tokenizer, 
-            ja_tokenizer=ja_tokenizer, 
-            num_proc=num_proc
-        )
-        return
-    
-    @staticmethod
-    def load(**kwargs):
-        csv_path = (
-            f"{DatasetLoader.DATASET_PROCESSED_DIR}/{MassiveTranslationDataset.OUT_NAME}"
-        )
-        if not os.path.exists(csv_path):
-            print(DatasetLoader.MISSING_FILE_FORMAT.format(file=MassiveTranslationDataset.OUT_NAME))
-            return
-        return load_dataset("csv", data_files=csv_path, **kwargs)
+            print(EnJaDataset.MISSING_FILE_FORMAT.format(file=MassiveTranslation.OUT_NAME))
+            MassiveTranslation.create_csv()
+            
+        disable_progress_bar()
+        data = load_dataset("csv", data_files=csv_path, split="train")
+        enable_progress_bar()
+        
+        return data

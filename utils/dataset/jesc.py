@@ -3,17 +3,17 @@ import tarfile, os, warnings
 from urllib.request import urlretrieve
 
 # external libraries
-from datasets import load_dataset
+from datasets import load_dataset, enable_progress_bar, disable_progress_bar
 from tqdm import TqdmExperimentalWarning
 
 warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
 from tqdm.autonotebook import tqdm
 
 # local libraries
-from .dataset_loader import DatasetLoader
+from .dataset_base import EnJaDataset
 
 
-class JESCDataset(DatasetLoader):
+class JESC(EnJaDataset):
     DOWNLOAD_URL = r"https://nlp.stanford.edu/projects/jesc/data/raw.tar.gz"
     OUT_NAME = r"jesc.csv"
     INFO = (
@@ -26,24 +26,24 @@ class JESCDataset(DatasetLoader):
     def create_csv(force_override=False):
         # check processed file presence
         output_path = (
-            f"{DatasetLoader.DATASET_PROCESSED_DIR}/{JESCDataset.OUT_NAME}"
+            f"{EnJaDataset.DATASET_PROCESSED_DIR}/{JESC.OUT_NAME}"
         )
         if not force_override and os.path.exists(output_path):
             print(
-                DatasetLoader.SKIPPED_MSG_FORMAT.format(
-                    file=JESCDataset.OUT_NAME
+                EnJaDataset.SKIPPED_MSG_FORMAT.format(
+                    file=JESC.OUT_NAME
                 )
             )
             return
-        JESCDataset._download_raw()
-        if not os.path.exists(DatasetLoader.DATASET_PROCESSED_DIR):
-            os.makedirs(DatasetLoader.DATASET_PROCESSED_DIR)
+        JESC._download_raw()
+        if not os.path.exists(EnJaDataset.DATASET_PROCESSED_DIR):
+            os.makedirs(EnJaDataset.DATASET_PROCESSED_DIR)
         # create csv file
         with open(output_path, "wb+") as csv_file:
-            header_str = DatasetLoader.CSV_HEADER_STR
+            header_str = EnJaDataset.CSV_HEADER_STR
             csv_file.write(header_str.encode("utf-8"))
             with tarfile.open(
-                f"{DatasetLoader.DATASET_RAW_DIR}/JESC/raw.tar.gz", mode="r"
+                f"{EnJaDataset.DATASET_RAW_DIR}/JESC/raw.tar.gz", mode="r"
             ) as tfh:
                 with tfh.extractfile("raw/raw") as fh:
                     while line := fh.readline():
@@ -56,40 +56,29 @@ class JESCDataset(DatasetLoader):
 
     @staticmethod
     def info():
-        print(JESCDataset.INFO)
-        return
-
-    @staticmethod
-    def stats(en_tokenizer, ja_tokenizer, num_proc=4):
-        csv_path = (
-            f"{DatasetLoader.DATASET_PROCESSED_DIR}/{JESCDataset.OUT_NAME}"
-        )
-        if not os.path.exists(csv_path):
-            print(DatasetLoader.MISSING_FILE_FORMAT.format(file=JESCDataset.OUT_NAME))
-            return
-        DatasetLoader.stats(
-            csv_path, 
-            en_tokenizer=en_tokenizer, 
-            ja_tokenizer=ja_tokenizer, 
-            num_proc=num_proc
-        )
+        print(JESC.INFO)
         return
     
     @staticmethod
-    def load(**kwargs):
+    def load():
         csv_path = (
-            f"{DatasetLoader.DATASET_PROCESSED_DIR}/{JESCDataset.OUT_NAME}"
+            f"{EnJaDataset.DATASET_PROCESSED_DIR}/{JESC.OUT_NAME}"
         )
         if not os.path.exists(csv_path):
-            print(DatasetLoader.MISSING_FILE_FORMAT.format(file=JESCDataset.OUT_NAME))
-            return
-        return load_dataset("csv", data_files=csv_path, **kwargs)
+            print(EnJaDataset.MISSING_FILE_FORMAT.format(file=JESC.OUT_NAME))
+            JESC.create_csv()
+            
+        disable_progress_bar()
+        data = load_dataset("csv", data_files=csv_path, split="train")
+        enable_progress_bar()
+        
+        return data
 
 
     @staticmethod
     def _download_raw(force_download=False):
         # check raw file presence
-        output_dir = f"{DatasetLoader.DATASET_RAW_DIR}/JESC"
+        output_dir = f"{EnJaDataset.DATASET_RAW_DIR}/JESC"
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         output_path = f"{output_dir}/raw.tar.gz"
@@ -108,7 +97,7 @@ class JESCDataset(DatasetLoader):
                 progress_bar.update(s)
 
             urlretrieve(
-                url=JESCDataset.DOWNLOAD_URL,
+                url=JESC.DOWNLOAD_URL,
                 filename=output_path,
                 reporthook=log_progress,
             )
