@@ -141,6 +141,7 @@ class EnJaDatasetMaker():
         
         # save dataset to cache
         dataset : Dataset = concatenate_datasets(data_list)
+        dataset.shuffle(seed)
         dataset.save_to_disk(save_dir)
         
         return dataset
