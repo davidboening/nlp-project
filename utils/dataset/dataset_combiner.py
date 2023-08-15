@@ -50,6 +50,8 @@ class EnJaDatasetMaker():
         dataset_splits: List[EnJaDatasetSample],
         *,
         source_language : str = None,
+        model_type : str = None,
+        tokenizer : Callable = None,
         encoder_tokenizer : Callable = None,
         decoder_tokenizer : Callable = None,
         num_proc : int = 4,
@@ -67,10 +69,14 @@ class EnJaDatasetMaker():
             and how they should be combined. Refer to `EnJaDatasetSample` for specifics.
         source_language : str
             the source language (either "en" or "ja"), required
+        model_type : str
+            the model type used (either "BERT-GPT2" or "mBART"), required
+        tokenizer : Callable
+            a mBART huggingface tokenizer, required if model_type == "mBART"
         encoder_tokenizer : Callable
-            a huggingface tokenizer, required
+            a BERT huggingface tokenizer, required if model_type == "BERT-GPT2"
         decoder_tokenizer : Callable
-            a huggingface tokenizer, required
+            a GPT2 huggingface tokenizer, required if model_type == "BERT-GPT2"
         num_proc : int
             number of workers for multithreading, by default 4
         seed : int
@@ -84,8 +90,15 @@ class EnJaDatasetMaker():
         # argument checking
         assert num_proc > 0, "Invalid number of workers."
         assert source_language in ["en", "ja"], "Invalid language."
-        assert encoder_tokenizer is not None and hasattr(encoder_tokenizer, "__call__"), "Object passed is not a valid tokenizer!"
-        assert decoder_tokenizer is not None and hasattr(decoder_tokenizer, "__call__"), "Object passed is not a valid tokenizer!"
+        assert model_type in ["BERT-GPT2", "mBART"], "Invalid model type."
+        if model_type == "BERT-GPT2":
+            assert encoder_tokenizer is not None and hasattr(encoder_tokenizer, "__call__"), "Object passed is not a valid tokenizer!"
+            assert decoder_tokenizer is not None and hasattr(decoder_tokenizer, "__call__"), "Object passed is not a valid tokenizer!"
+            assert tokenizer is None, "Invalid arguments passed to function call!"
+        else:
+            assert tokenizer is not None and hasattr(tokenizer, "__call__"), "Object passed is not a valid tokenizer!"
+            assert encoder_tokenizer is None and decoder_tokenizer is None, "Invalid arguments passed to function call!"
+             
         assert all(isinstance(dss, EnJaDatasetSample) for dss in dataset_splits), "Invalid split object!"
         for i, dss in enumerate(dataset_splits):
             assert issubclass(dss.dataset, EnJaDataset), f"Invalid dataset: dataset_splits[{i}] = {dss.dataset.__name__}"
@@ -114,14 +127,22 @@ class EnJaDatasetMaker():
                     "ja_sentence": "source",
                     "en_sentence": "target"
                 })
-                
-            data = data.map(
-                EnJaDatasetMaker._get_map_compute_tokenization(
-                    encoder_tokenizer=encoder_tokenizer, 
-                    decoder_tokenizer=decoder_tokenizer
-                ), 
-                num_proc=num_proc,
-            )
+            
+            if model_type == "BERT-GPT2":
+                data = data.map(
+                    EnJaDatasetMaker._get_map_compute_BERT_GPT2_tokenization(
+                        encoder_tokenizer=encoder_tokenizer, 
+                        decoder_tokenizer=decoder_tokenizer
+                    ), 
+                    num_proc=num_proc,
+                )
+            else: # model_type == "mBART"
+                data = data.map(
+                    EnJaDatasetMaker._get_map_compute_mBART_tokenization(
+                        tokenizer=tokenizer
+                    ), 
+                    num_proc=num_proc,
+                )
   
             data = data.filter(
                 EnJaDatasetMaker._get_filter_is_inside_boundaries(ds_split.ntokens),
@@ -148,7 +169,7 @@ class EnJaDatasetMaker():
 
             
     @staticmethod
-    def _get_map_compute_tokenization(*, encoder_tokenizer=None, decoder_tokenizer=None):  
+    def _get_map_compute_BERT_GPT2_tokenization(*, encoder_tokenizer=None, decoder_tokenizer=None):  
         def compute_tokenization(sample):
             src_tokens = encoder_tokenizer(sample["source"], return_tensors="pt")
             trg_tokens = decoder_tokenizer(sample["target"], return_tensors="pt")
@@ -157,6 +178,20 @@ class EnJaDatasetMaker():
             sample["input_ids"]      = src_tokens.input_ids.flatten()
             sample["attention_mask"] = src_tokens.attention_mask.flatten()
             sample["labels"]         = trg_tokens.input_ids.flatten()
+            
+            return sample
+        
+        return compute_tokenization
+    
+    @staticmethod
+    def _get_map_compute_mBART_tokenization(*, tokenizer=None):
+        def compute_tokenization(sample):
+            tokens = tokenizer(sample["source"], text_target=sample["target"], return_tensors="pt")
+            
+            sample["length"] = tokens.input_ids.shape[1]
+            sample["input_ids"] = tokens.input_ids.flatten()
+            sample["attention_mask"] = tokens.attention_mask.flatten()
+            sample["labels"] = tokens.labels.flatten()
             
             return sample
         
