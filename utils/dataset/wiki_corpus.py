@@ -59,13 +59,13 @@ class WikiCorpus(EnJaDataset):
                                 res := WikiCorpus._parse_wiki_corpus_xml(xml_fh)
                             ) is not None:
                                 (ja_t, en_t), sentences, _ = res
-                                if en_t is not None and len(en_t) > 1:
+                                if not (en_t is None or len(en_t) < 2 or ja_t == "なし"):
                                     en_t = en_t.replace('"', '""')
                                     ja_t = ja_t.replace('"', "")
                                     out_line = f'"{en_t}","{ja_t}"\n'
                                     csv_file.write(out_line.encode("utf-8"))
                                 for ja_s, en_s in sentences:
-                                    if en_s is None or len(en_s) < 2:
+                                    if en_s is None or len(en_s) < 2 or ja_s == "なし":
                                         continue
                                     en_s = en_s.replace('"', '""')
                                     ja_s = ja_s.replace('"', "")
