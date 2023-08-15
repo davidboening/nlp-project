@@ -1,10 +1,10 @@
 # python libraries
-from typing import List, Tuple, Callable, NewType
+from typing import List, Tuple, Callable, NewType, Union, Optional
 from dataclasses import dataclass
 import os, random
 
 # external libraries
-from datasets import concatenate_datasets, load_from_disk, Dataset
+from datasets import concatenate_datasets, load_from_disk, Dataset, DatasetDict
 
 # local libraries
 from .dataset_base import EnJaDataset
@@ -56,6 +56,7 @@ class EnJaDatasetMaker():
         decoder_tokenizer : Callable = None,
         num_proc : int = 4,
         seed : int = 42,
+        splits : Optional[Union[Tuple[float, float], Tuple[float, float, float]]] = None
     ) -> Dataset:
         """Create a new dataset with given specifics. Or if it exists
         loads it from cache.
@@ -81,6 +82,9 @@ class EnJaDatasetMaker():
             number of workers for multithreading, by default 4
         seed : int
             seed used for sampling, by default 42
+        splits : None | Tuple[float, float] | Tuple[float, float, float]
+            train/valid or train/valid/test split ratios, by default None
+            The values are rescaled so that sum(splits) = 1.0
             
         Returns
         -------
@@ -98,7 +102,9 @@ class EnJaDatasetMaker():
         else:
             assert tokenizer is not None and hasattr(tokenizer, "__call__"), "Object passed is not a valid tokenizer!"
             assert encoder_tokenizer is None and decoder_tokenizer is None, "Invalid arguments passed to function call!"
-             
+        if splits is not None:
+            assert (len(splits) == 2 or len(splits) == 3), "Invalid splits."
+            splits = tuple(split/sum(splits) for split in splits)
         assert all(isinstance(dss, EnJaDatasetSample) for dss in dataset_splits), "Invalid split object!"
         for i, dss in enumerate(dataset_splits):
             assert issubclass(dss.dataset, EnJaDataset), f"Invalid dataset: dataset_splits[{i}] = {dss.dataset.__name__}"
@@ -149,19 +155,42 @@ class EnJaDatasetMaker():
                 num_proc=num_proc,
             )
             
-            try:
-                sample_ids = random.sample(range(len(data)), ds_split.nsample)
+            data = data.shuffle(seed=seed)
+            if ds_split.nsample < len(data):
                 print(f"sampling: {ds_split.nsample} out of {len(data)}")
-                data = data.select(sample_ids)
-            except ValueError:
-                # sample is bigger than dataset (use all)
+                data = data.select(range(ds_split.nsample))
+            else:
                 print(f"sampling: using all data ({len(data)})\n")
             
+            if splits is not None:
+                # train / (valid + test)
+                data = data.train_test_split(train_size=splits[0])
+                if len(splits) == 3:
+                    valid_test = data["test"].train_test_split(train_size=(splits[1] / (splits[1] + splits[2])))
+                    data = DatasetDict({
+                        'train': data['train'],
+                        'valid': valid_test['train'],
+                        'test' : valid_test['test']
+                    })
+
             data.set_format(type="torch")
             data_list.append(data)
         
+        if splits is None:
+            dataset : Dataset = concatenate_datasets(data_list)
+        elif len(splits) == 2:
+            dataset = DatasetDict({
+                "train" : concatenate_datasets([d["train"] for d in data_list]),
+                "test"  : concatenate_datasets([d["test"]  for d in data_list]),
+            })
+        else: # len(splits) == 3
+            dataset = DatasetDict({
+                "train" : concatenate_datasets([d["train"] for d in data_list]),
+                "valid" : concatenate_datasets([d["valid"] for d in data_list]),
+                "test"  : concatenate_datasets([d["test"]  for d in data_list]),
+            })
+        
         # save dataset to cache
-        dataset : Dataset = concatenate_datasets(data_list)
         dataset.shuffle(seed)
         dataset.save_to_disk(save_dir)
         
