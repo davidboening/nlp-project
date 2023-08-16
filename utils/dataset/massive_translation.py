@@ -1,9 +1,8 @@
 # python libraries
 import os
-import itertools
 
 # external libraries
-from datasets import load_dataset, enable_progress_bar, disable_progress_bar
+from datasets import load_dataset, enable_progress_bar, disable_progress_bar, concatenate_datasets
 
 # local libraries
 from .dataset_base import EnJaDataset
@@ -31,24 +30,13 @@ class MassiveTranslation(EnJaDataset):
             "Amani27/massive_translation_dataset",
             cache_dir=EnJaDataset.DATASET_RAW_DIR,
         )
-        en_text = itertools.chain(
-            dataset["train"]["en_US"],
-            dataset["validation"]["en_US"],
-            dataset["test"]["en_US"],
-        )
-        ja_text = itertools.chain(
-            dataset["train"]["ja_JP"],
-            dataset["validation"]["ja_JP"],
-            dataset["test"]["ja_JP"],
-        )
-        if not os.path.exists(EnJaDataset.DATASET_PROCESSED_DIR):
-            os.makedirs(EnJaDataset.DATASET_PROCESSED_DIR)
-        with open(output_path, "wb+") as csv_file:
-            header_str = EnJaDataset.CSV_HEADER_STR
-            csv_file.write(header_str.encode("utf-8"))
-            for en_s, ja_s in zip(en_text, ja_text):
-                out_line = f'"{en_s}","{ja_s}"\n'
-                csv_file.write(out_line.encode("utf-8"))
+        
+        dataset = concatenate_datasets([dataset["train"], dataset["validation"], dataset["test"]])
+        
+        disable_progress_bar()
+        dataset = dataset.rename_columns({"en_US" : "en_sentence", "ja_JP" : "ja_sentence"})
+        dataset.to_csv(output_path)
+        enable_progress_bar()
         return
 
     @staticmethod

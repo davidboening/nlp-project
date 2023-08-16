@@ -2,7 +2,7 @@
 import os
 
 # external libraries
-from datasets import load_dataset, enable_progress_bar, disable_progress_bar
+from datasets import load_dataset, enable_progress_bar, disable_progress_bar, concatenate_datasets
 
 # local libraries
 from .dataset_base import EnJaDataset
@@ -31,19 +31,29 @@ class SnowSimplified(EnJaDataset):
         )
         if not os.path.exists(EnJaDataset.DATASET_PROCESSED_DIR):
             os.makedirs(EnJaDataset.DATASET_PROCESSED_DIR)
-        with open(output_path, "wb+") as csv_file:
-            header_str = EnJaDataset.CSV_HEADER_STR
-            csv_file.write(header_str.encode("utf-8"))
-            for rec in dataset["train"]:
-                en_s, ja1_s, ja2_s = (
-                    rec["original_en"],
-                    rec["original_ja"],
-                    rec["simplified_ja"],
-                )
-                out_line = f'"{en_s}","{ja1_s}"\n'
-                csv_file.write(out_line.encode("utf-8"))
-                out_line = f'"{en_s}","{ja2_s}"\n'
-                csv_file.write(out_line.encode("utf-8"))
+        
+        disable_progress_bar()
+        def ogify(batch):
+            batch["en_sentence"] = batch["original_en"]
+            batch["ja_sentence"] = batch["original_ja"]
+            return batch
+
+        def simpfy(batch):
+            batch["en_sentence"] = batch["original_en"]
+            batch["ja_sentence"] = batch["simplified_ja"]
+            return batch
+
+        dataset_og = dataset.map(
+            ogify, batch_size=1, 
+            remove_columns=["ID", "original_ja", "original_en", "simplified_ja"]
+        )
+        dataset_simp = dataset.map(
+            simpfy, batch_size=1, 
+            remove_columns=["ID", "original_ja", "original_en", "simplified_ja"]
+        )
+        dataset = concatenate_datasets([dataset_og["train"], dataset_simp["train"]])
+        dataset.to_csv(output_path)
+        enable_progress_bar()
         return
 
     @staticmethod
