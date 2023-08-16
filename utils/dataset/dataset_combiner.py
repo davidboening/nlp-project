@@ -160,7 +160,7 @@ class EnJaDatasetMaker():
                 print(f"sampling: {ds_split.nsample} out of {len(data)}")
                 data = data.select(range(ds_split.nsample))
             else:
-                print(f"sampling: using all data ({len(data)})\n")
+                print(f"sampling: using all data ({len(data)})")
             
             if splits is not None:
                 # train / (valid + test)

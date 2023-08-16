@@ -41,6 +41,11 @@ class Tatoeba(EnJaDataset):
             batch["ja_sentence"] = batch["translation"]["ja"]
             return batch
         dataset = dataset.map(rearrange, remove_columns=["translation", "id"])
+        def remove_empty(batch):
+            # removes some empty sentence pairs from the dataset
+            return len(batch["en_sentence"]) > 0
+        
+        dataset = dataset.filter(remove_empty)
         
         dataset.to_csv(output_path)
         enable_progress_bar()

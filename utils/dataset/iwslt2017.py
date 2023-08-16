@@ -13,8 +13,8 @@ class IWSLT2017(EnJaDataset):
     INFO = (
         "Webpage    : https://sites.google.com/site/iwsltevaluation2017/TED-tasks\n"
         "Webpage(HF): https://huggingface.co/datasets/iwslt2017\n"
-        "Summary    : a collection of multilingual tasks, one of which is bilingual\n"
-        "             corpora of 230k [en-ja] sentences."
+        "Summary    : a collection of multilingual tasks, one of which is a bilingual\n"
+        "             corpus of 230k [en-ja] sentences."
     )
 
     @staticmethod

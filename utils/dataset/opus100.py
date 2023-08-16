@@ -39,6 +39,14 @@ class OPUS100(EnJaDataset):
             batch["ja_sentence"] = batch["translation"]["ja"]
             return batch
         dataset = dataset.map(rearrange, remove_columns=["translation"], num_proc=EnJaDataset.NUM_PROC)
+        def remove_jank(batch):
+            # 1 -> remove jank, 2 -> remove more jank, 3 -> ???
+            # japanese has None or empty string...
+            # jank keeps increasing "n/a" in Japanese ("n/ a" in en) gets loaded as None
+            return len(batch["en_sentence"]) > 2 and len(batch["ja_sentence"]) > 0 \
+                and batch["ja_sentence"] not in ["n/a", "N/A", "なし"]
+        
+        dataset = dataset.filter(remove_jank)
         
         dataset.to_csv(output_path)
         enable_progress_bar()
