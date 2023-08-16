@@ -38,7 +38,7 @@ class IWSLT2017(EnJaDataset):
             batch["en_sentence"] = batch["translation"]["en"]
             batch["ja_sentence"] = batch["translation"]["ja"]
             return batch
-        dataset = dataset.map(rearrange, remove_columns=["translation"])
+        dataset = dataset.map(rearrange, remove_columns=["translation"], num_proc=EnJaDataset.NUM_PROC)
         
         dataset.to_csv(output_path)
         enable_progress_bar()

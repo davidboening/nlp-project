@@ -30,7 +30,7 @@ class Tatoeba(EnJaDataset):
             )
             return
         dataset = load_dataset(
-            "tatoeba", lang1="en", lang2="ja", cache_dir=EnJaDataset.DATASET_RAW_DIR
+            "tatoeba", lang1="en", lang2="ja", cache_dir=EnJaDataset.DATASET_RAW_DIR, split="train"
         )
         if not os.path.exists(EnJaDataset.DATASET_PROCESSED_DIR):
             os.makedirs(EnJaDataset.DATASET_PROCESSED_DIR)
@@ -40,7 +40,7 @@ class Tatoeba(EnJaDataset):
             batch["en_sentence"] = batch["translation"]["en"]
             batch["ja_sentence"] = batch["translation"]["ja"]
             return batch
-        dataset = dataset.map(rearrange, remove_columns=["translation"])
+        dataset = dataset.map(rearrange, remove_columns=["translation", "id"])
         
         dataset.to_csv(output_path)
         enable_progress_bar()

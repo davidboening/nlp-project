@@ -15,6 +15,7 @@ class EnJaDataset(ABC):
     MISSING_FILE_FORMAT = "warning: {file} not found, creating csv first ..."
     LOAD_FROM_CACHE_FORMAT = 'skipped: loaded dataset with id="{id}" from existing cache.'
     LOAD_INVALID_ID_FORMAT = 'dataset with id="{id}" was not found.'
+    NUM_PROC = 4
 
     DATASET_RAW_DIR = r"./data-raw"
     DATASET_PROCESSED_DIR = r"./data-csv"

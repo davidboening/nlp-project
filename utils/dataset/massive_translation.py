@@ -34,6 +34,7 @@ class MassiveTranslation(EnJaDataset):
         dataset = concatenate_datasets([dataset["train"], dataset["validation"], dataset["test"]])
         
         disable_progress_bar()
+        dataset = dataset.remove_columns(["id","split","de_DE","hi_IN","es_ES","fr_FR","it_IT","ar_SA","nl_NL","pt_PT"])
         dataset = dataset.rename_columns({"en_US" : "en_sentence", "ja_JP" : "ja_sentence"})
         dataset.to_csv(output_path)
         enable_progress_bar()
