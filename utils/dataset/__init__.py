@@ -8,6 +8,7 @@ from .opus100 import OPUS100
 from .flores import Flores
 from .wmt_vat import WMTvat
 from .dataset_combiner import EnJaDatasetSample, EnJaDatasetMaker
+from .dataset_backtranslation import EnJaBackTranslation
 
 __all__ = [
     "JESC",
@@ -23,4 +24,6 @@ __all__ = [
     
     "EnJaDatasetSample",
     "EnJaDatasetMaker",
+    
+    "EnJaBackTranslation"
 ]

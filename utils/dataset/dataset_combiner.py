@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import os, random
 
 # external libraries
-from datasets import concatenate_datasets, load_from_disk, Dataset, DatasetDict
+from datasets import load_dataset, concatenate_datasets, load_from_disk, Dataset, DatasetDict
 
 # local libraries
 from .dataset_base import EnJaDataset
@@ -17,14 +17,14 @@ class EnJaDatasetSample:
 
     Parameters
     ----------
-    dataset : EnJaDataset
-        an EnJaDataset subclass defining a dataset
+    dataset : str
+        a path to a csv file with ["en_sentence", "ja_sentence"] as columns
     nsample : int
         #samples to take from this dataset
     ntokens : Tuple[int, int]
         min and max #tokens allowed per sentence
     """
-    dataset : EnJaDataset
+    dataset : str
     nsample : int
     ntokens : Tuple[int, int]
     
@@ -34,7 +34,7 @@ class EnJaDatasetMaker():
     """Prepares a dataset for training from various sources."""
     
     @staticmethod
-    def load_dataset(dataset_id : DatasetID) -> Dataset:
+    def load_dataset(dataset_id : DatasetID) -> Union[Dataset, DatasetDict]:
         """Returns the dataset with given id if it exists."""
         save_dir = (
             f"{EnJaDataset.DATASET_FINAL_DIR}/{dataset_id}"
@@ -57,7 +57,7 @@ class EnJaDatasetMaker():
         num_proc : int = 4,
         seed : int = 42,
         splits : Optional[Union[Tuple[float, float], Tuple[float, float, float]]] = None
-    ) -> Dataset:
+    ) -> Union[Dataset, DatasetDict]:
         """Create a new dataset with given specifics. Or if it exists
         loads it from cache.
 
@@ -107,9 +107,9 @@ class EnJaDatasetMaker():
             splits = tuple(split/sum(splits) for split in splits)
         assert all(isinstance(dss, EnJaDatasetSample) for dss in dataset_splits), "Invalid split object!"
         for i, dss in enumerate(dataset_splits):
-            assert issubclass(dss.dataset, EnJaDataset), f"Invalid dataset: dataset_splits[{i}] = {dss.dataset.__name__}"
+            assert os.path.exists(dss.dataset), f"Invalid dataset: dataset_splits[{i}] = {dss.dataset.__name__} not found"
             assert isinstance(dss.nsample, int) and dss.nsample > 0, f"Invalid number of samples: dataset_splits[{i}] = {dss.nsample}"
-            assert isinstance(dss.ntokens, Tuple) and len(dss.ntokens) == 2 and 0 <= dss.ntokens[0] <= dss.ntokens[1], f"Invalid number of samples: dataset_splits[{i}] = {dss.ntokens}"
+            assert isinstance(dss.ntokens, tuple) and len(dss.ntokens) == 2 and 0 <= dss.ntokens[0] <= dss.ntokens[1], f"Invalid number of samples: dataset_splits[{i}] = {dss.ntokens}"
         
         save_dir = (
             f"{EnJaDataset.DATASET_FINAL_DIR}/{dataset_id}"
@@ -121,7 +121,7 @@ class EnJaDatasetMaker():
         random.seed(seed)
         data_list = []
         for ds_split in dataset_splits:
-            data = ds_split.dataset.load()
+            data = load_dataset("csv", data_files=ds_split.dataset, split="train")
             
             if source_language == "en":
                 data = data.rename_columns({
@@ -195,7 +195,6 @@ class EnJaDatasetMaker():
         dataset.save_to_disk(save_dir)
         
         return dataset
-
             
     @staticmethod
     def _get_map_compute_BERT_GPT2_tokenization(*, encoder_tokenizer=None, decoder_tokenizer=None):  
@@ -232,3 +231,4 @@ class EnJaDatasetMaker():
             return splice[0] <= sample["length"] < splice[1]
         
         return is_inside_boundaries
+    
