@@ -80,7 +80,7 @@ class EnJaBackTranslation:
             gen_chunk = data.select(range(offset,offset+chunk_size))
             
             # backtranslation source (== model generation)
-            gen_out = trainer.predict(gen_chunk, gen_config)
+            gen_out = trainer.predict(gen_chunk, **gen_config.to_dict())
             gen_chunk_target = tokenizer.batch_decode(gen_out.predictions, skip_special_tokens=True)
 
             # create new chuck and append to existing csv

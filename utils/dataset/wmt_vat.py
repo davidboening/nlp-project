@@ -106,8 +106,8 @@ class WMTvat(EnJaDataset):
         downloads = {
             "enja-src.en.txt" : WMTvat.DOWNLOAD_URL["en-ja"]["src"],
             "enja-ref.ja.txt" : WMTvat.DOWNLOAD_URL["en-ja"]["ref"],
-            "jaen-src.ja.txt" : WMTvat.DOWNLOAD_URL["ja-en"]["ref"],
-            "jaen-ref.en.txt" : WMTvat.DOWNLOAD_URL["ja-en"]["src"]
+            "jaen-src.ja.txt" : WMTvat.DOWNLOAD_URL["ja-en"]["src"],
+            "jaen-ref.en.txt" : WMTvat.DOWNLOAD_URL["ja-en"]["ref"]
         }
         
         outff = output_dir + "/{name}"
