@@ -106,7 +106,7 @@ if __name__ == "__main__":
         predict_with_generate=True,
         generation_config=gen_config,
 
-        output_dir="./.ckp/",
+        output_dir=f"./.ckp/{SOURCE_LANG}-{TARGET_LANG}-{DATASET_NAME}/",
         save_strategy="steps",
         save_steps=1250, # * 20_000, 10_000, 5_000
         save_total_limit=100,

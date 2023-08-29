@@ -5,8 +5,10 @@ data-csv/
 data-fin/
 .cache/
 .ckp/
+data-bt/
 wandb/
-.checkpoints/
+_legacy_code.py
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
