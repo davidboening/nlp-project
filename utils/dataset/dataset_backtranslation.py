@@ -9,10 +9,10 @@ from tqdm.autonotebook import tqdm
 # external libraries
 import pandas as pd
 from datasets import Dataset
-from transformers import Seq2SeqTrainer, GenerationConfig
+from transformers import Seq2SeqTrainer
 
 class EnJaBackTranslation:    
-    def create_mBART_backtranslation(trainer : Seq2SeqTrainer, data: Dataset, src_lang: str, tokenizer: Callable, *, chunk_size=1000, gen_config : GenerationConfig={}, out_dir="./data-bt", out_name="bt.csv", resume=True):
+    def create_mBART_backtranslation(trainer : Seq2SeqTrainer, data: Dataset, src_lang: str, tokenizer: Callable, *, chunk_size=1000, gen_config : dict = {}, out_dir="./data-bt", out_name="bt.csv", resume=True):
         """Creates backtranslation from an *ordered* (ideally by lenght) dataset.
         Can resume from previous iteration in case of interruptions.
 
@@ -29,7 +29,7 @@ class EnJaBackTranslation:
             the mBART tokenizer
         chunk_size : int, optional
             chucks to compute before saving to disk, by default 1000
-        gen_config : GenerationConfig, optional
+        gen_config : dict, optional
             generation config for the trainer, by default {}
         out_dir : str, optional
             file output directory (both for chunks and file), by default "."
@@ -80,7 +80,7 @@ class EnJaBackTranslation:
             gen_chunk = data.select(range(offset,offset+chunk_size))
             
             # backtranslation source (== model generation)
-            gen_out = trainer.predict(gen_chunk, **gen_config.to_dict())
+            gen_out = trainer.predict(gen_chunk, **gen_config)
             gen_chunk_target = tokenizer.batch_decode(gen_out.predictions, skip_special_tokens=True)
 
             # create new chuck and append to existing csv
