@@ -63,7 +63,7 @@ class EnJaBackTranslation:
             chunk_nums = []
             for cname in chunk_names:
                 chunk_nums.append(int(re.match(pattern, cname).groups()[0]))
-            last_chunk = max(chunk_nums) if last_chunk > 0 else 0
+            last_chunk = max(chunk_nums) if len(chunk_nums) > 0 else 0
 
             # check existing chunks to obtain last to ensure all previous ones exist
             for i in range(last_chunk):
@@ -74,7 +74,11 @@ class EnJaBackTranslation:
         offset, total = last_chunk*chunk_size, len(data)
         nchunks, rem = divmod(total, chunk_size)
         nchunks += (1 if rem > 0 else 0)
-        pbar = tqdm(desc="Generating Dataset", unit="chunks", unit_scale=True, unit_divisor=1000, total=nchunks)
+        pbar = tqdm(
+            desc="Generating Dataset", unit="chunks", 
+            unit_scale=True, unit_divisor=1000, 
+            total=int(nchunks), initial=last_chunk
+        )
         while offset < total:
             # backtranslation target (== source sentence)
             gen_chunk = data.select(range(offset,offset+chunk_size))
