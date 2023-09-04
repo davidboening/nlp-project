@@ -125,9 +125,9 @@ if __name__ == "__main__":
         # torch_compile=True,
         label_smoothing_factor=0.2, # 0.1, 0.2
         
-        per_device_train_batch_size=4,
-        per_device_eval_batch_size=4,
-        gradient_accumulation_steps=8, # * 1, 2, 4
+        per_device_train_batch_size=8,
+        per_device_eval_batch_size=8,
+        gradient_accumulation_steps=4, # * 1, 2, 4
         gradient_checkpointing=True,
         # eval_accumulation_steps=4, # ???
     )

@@ -10,8 +10,9 @@ class SacreBleu:
         if target_language == "ja":
             def compute_metrics(preds):
                 preds_ids, labels_ids = preds
-
-                labels_ids[labels_ids == -100] = tokenizer.eos_token_id
+                
+                preds_ids[preds_ids == -100] = tokenizer.pad_token_id
+                labels_ids[labels_ids == -100] = tokenizer.pad_token_id
                 references = tokenizer.batch_decode(labels_ids, skip_special_tokens=True)
                 references = [[reference] for reference in references]
 
@@ -28,7 +29,8 @@ class SacreBleu:
             def compute_metrics(preds):
                 preds_ids, labels_ids = preds
 
-                labels_ids[labels_ids == -100] = tokenizer.eos_token_id
+                preds_ids[preds_ids == -100] = tokenizer.pad_token_id
+                labels_ids[labels_ids == -100] = tokenizer.pad_token_id
                 references = tokenizer.batch_decode(labels_ids, skip_special_tokens=True)
                 references = [[reference] for reference in references]
 

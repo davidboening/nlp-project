@@ -81,12 +81,15 @@ class EnJaBackTranslation:
         )
         while offset < total:
             # backtranslation target (== source sentence)
-            gen_chunk = data.select(range(offset,offset+chunk_size))
+            if offset+chunk_size > total:
+                gen_chunk = data.select(range(offset,total))
+            else:
+                gen_chunk = data.select(range(offset,offset+chunk_size))
             
             # backtranslation source (== model generation)
             gen_out = trainer.predict(gen_chunk, **gen_config)
+            gen_out.predictions[gen_out.predictions == -100] = tokenizer.pad_token_id
             gen_chunk_target = tokenizer.batch_decode(gen_out.predictions, skip_special_tokens=True)
-
             # create new chuck and append to existing csv
             new_chuck = pd.DataFrame({
                 f"{src_lang}_sentence" : gen_chunk["source"],
@@ -96,6 +99,7 @@ class EnJaBackTranslation:
             offset += chunk_size
             last_chunk += 1
             pbar.update(1)
+        pbar.close()
         # merge chunks into a single csv file
         for i in range(nchunks):
             df = pd.read_csv(f"{chunk_dir}/chunk.{i}.csv")
