@@ -8,6 +8,7 @@ data-fin/
 data-bt/
 wandb/
 _legacy_code.py
+_old
 
 
 # Byte-compiled / optimized / DLL files
