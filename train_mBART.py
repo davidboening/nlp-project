@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         prog='train_mbart',
         description='Run training for mBART with fixed hyperparameters',
-    ) #ckp-25000-bt-500k
+    )
     parser.add_argument('-l', '--source-language', choices=["en", "ja"], type=str, help='source language')
     parser.add_argument('-d', '--dataset-name', choices=["mixed-500k", "mixed-250k+bt-250k", "news-250k", "ckp-25000-bt-500k"], type=str, help='dataset name')
     parser.add_argument('--resume', default=True, action=argparse.BooleanOptionalAction, help="resume training from checkpoint (default: True)")
@@ -77,14 +77,14 @@ if __name__ == "__main__":
         
     def set_decoder_configuration(gc: GenerationConfig):
         gc.no_repeat_ngram_size = 4
-        gc.length_penalty = 2.0
+        gc.length_penalty = 1.0
         gc.num_beams = 3
         #gen_config.max_new_tokens = MAX_LENGHT
         gc.max_length = 256
         gc.min_length = 0
         gc.early_stopping = True
         # pad token is set to eos since in GPT2 pad does not exist
-        gc.pad_token_id = tokenizer.eos_token_id
+        gc.pad_token_id = tokenizer.pad_token_id
         gc.bos_token_id = tokenizer.bos_token_id
         gc.eos_token_id = tokenizer.eos_token_id
         return gc
@@ -98,38 +98,37 @@ if __name__ == "__main__":
         num_train_epochs=3,
 
         logging_strategy="steps",
-        logging_steps=1, # * 4, 2, 1
+        logging_steps=1,
 
         evaluation_strategy="steps",
-        eval_steps=2500, # * 20_000, 10_000, 5_000
+        eval_steps=2500, # 1250, 2500
         prediction_loss_only=False,
         predict_with_generate=True,
         generation_config=gen_config,
 
         output_dir=f"./.ckp/{SOURCE_LANG}-{TARGET_LANG}-{DATASET_NAME}/",
         save_strategy="steps",
-        save_steps=2500, # * 20_000, 10_000, 5_000
+        save_steps=2500, # 1250, 2500
         save_total_limit=100,
         load_best_model_at_end=True, # defaults to metric: "loss"
         metric_for_best_model="eval_score",
         greater_is_better=True,
 
         optim="adamw_torch",
-        warmup_steps=875, # 3500, 1750, 875
+        warmup_steps=875, # 400, 875
         learning_rate=3e-5, # 3e-5, 5e-5
-        bf16=True, # bf16, qint 8 ???
+        bf16=True,
         
         group_by_length=True,
         length_column_name="length",
 
         # torch_compile=True,
-        label_smoothing_factor=0.2, # 0.1, 0.2
+        label_smoothing_factor=0.2,
         
         per_device_train_batch_size=8,
         per_device_eval_batch_size=8,
-        gradient_accumulation_steps=4, # * 1, 2, 4
+        gradient_accumulation_steps=4,
         gradient_checkpointing=True,
-        # eval_accumulation_steps=4, # ???
     )
     
     trainer = Seq2SeqTrainer(
