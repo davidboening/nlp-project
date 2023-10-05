@@ -9,6 +9,7 @@ data-bt/
 wandb/
 _legacy_code.py
 _old
+eval/
 
 
 # Byte-compiled / optimized / DLL files
