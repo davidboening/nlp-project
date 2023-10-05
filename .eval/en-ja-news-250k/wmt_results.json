@@ -1,0 +1,170 @@
+{
+    "checkpoint_3500": {
+        "test_loss": 8.273734092712402,
+        "test_score": 1.3714143502994285,
+        "test_counts": [
+            668,
+            164,
+            86,
+            45
+        ],
+        "test_totals": [
+            9778,
+            9384,
+            8991,
+            8599
+        ],
+        "test_precisions": [
+            6.831662916751892,
+            1.7476555839727195,
+            0.9565120676231788,
+            0.5233166647284568
+        ],
+        "test_bp": 0.8771207098462487,
+        "test_sys_len": 9778,
+        "test_ref_len": 11060,
+        "test_runtime": 139.2509,
+        "test_samples_per_second": 2.851,
+        "test_steps_per_second": 0.359
+    },
+    "checkpoint_7000": {
+        "test_loss": 8.105942726135254,
+        "test_score": 1.4031659055942074,
+        "test_counts": [
+            667,
+            164,
+            88,
+            48
+        ],
+        "test_totals": [
+            9950,
+            9554,
+            9158,
+            8763
+        ],
+        "test_precisions": [
+            6.703517587939698,
+            1.7165585095248064,
+            0.9609084953046517,
+            0.5477576172543649
+        ],
+        "test_bp": 0.8944397011832703,
+        "test_sys_len": 9950,
+        "test_ref_len": 11060,
+        "test_runtime": 125.326,
+        "test_samples_per_second": 3.168,
+        "test_steps_per_second": 0.399
+    },
+    "checkpoint_10500": {
+        "test_loss": 8.129246711730957,
+        "test_score": 1.3723047683497962,
+        "test_counts": [
+            648,
+            161,
+            87,
+            47
+        ],
+        "test_totals": [
+            9666,
+            9273,
+            8880,
+            8488
+        ],
+        "test_precisions": [
+            6.70391061452514,
+            1.7362234444084979,
+            0.9797297297297297,
+            0.553722902921772
+        ],
+        "test_bp": 0.8657000071156593,
+        "test_sys_len": 9666,
+        "test_ref_len": 11060,
+        "test_runtime": 132.8997,
+        "test_samples_per_second": 2.987,
+        "test_steps_per_second": 0.376
+    },
+    "checkpoint_14000": {
+        "test_loss": 8.221221923828125,
+        "test_score": 1.3466163571572538,
+        "test_counts": [
+            657,
+            162,
+            84,
+            44
+        ],
+        "test_totals": [
+            9812,
+            9417,
+            9022,
+            8628
+        ],
+        "test_precisions": [
+            6.69588259274358,
+            1.7202930869703728,
+            0.9310574152072711,
+            0.5099675475197033
+        ],
+        "test_bp": 0.8805652972986725,
+        "test_sys_len": 9812,
+        "test_ref_len": 11060,
+        "test_runtime": 124.8419,
+        "test_samples_per_second": 3.18,
+        "test_steps_per_second": 0.401
+    },
+    "checkpoint_17500": {
+        "test_loss": 8.105006217956543,
+        "test_score": 1.3038732072232304,
+        "test_counts": [
+            647,
+            159,
+            80,
+            42
+        ],
+        "test_totals": [
+            9825,
+            9430,
+            9035,
+            8641
+        ],
+        "test_precisions": [
+            6.585241730279898,
+            1.6861081654294803,
+            0.8854454897620365,
+            0.4860548547621803
+        ],
+        "test_bp": 0.8818795953109018,
+        "test_sys_len": 9825,
+        "test_ref_len": 11060,
+        "test_runtime": 125.5017,
+        "test_samples_per_second": 3.163,
+        "test_steps_per_second": 0.398
+    },
+    "checkpoint_21000": {
+        "test_loss": 8.113411903381348,
+        "test_score": 1.3227858726755537,
+        "test_counts": [
+            649,
+            160,
+            82,
+            43
+        ],
+        "test_totals": [
+            9826,
+            9431,
+            9036,
+            8642
+        ],
+        "test_precisions": [
+            6.604925707307144,
+            1.6965327112713393,
+            0.9074811863656486,
+            0.4975700069428373
+        ],
+        "test_bp": 0.8819806322031835,
+        "test_sys_len": 9826,
+        "test_ref_len": 11060,
+        "test_runtime": 124.4178,
+        "test_samples_per_second": 3.191,
+        "test_steps_per_second": 0.402
+    }
+}

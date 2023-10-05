@@ -1,0 +1,198 @@
+{
+    "checkpoint_3750": {
+        "test_loss": 5.220962047576904,
+        "test_score": 7.374907259183732,
+        "test_counts": [
+            3161,
+            952,
+            366,
+            170
+        ],
+        "test_totals": [
+            9417,
+            9017,
+            8617,
+            8217
+        ],
+        "test_precisions": [
+            33.56695338218116,
+            10.557835200177443,
+            4.247417894859,
+            2.068881586953876
+        ],
+        "test_bp": 0.9872330946028495,
+        "test_sys_len": 9417,
+        "test_ref_len": 9538,
+        "test_runtime": 138.9803,
+        "test_samples_per_second": 2.878,
+        "test_steps_per_second": 0.36
+    },
+    "checkpoint_7500": {
+        "test_loss": 5.118399143218994,
+        "test_score": 7.044639142804872,
+        "test_counts": [
+            3590,
+            1142,
+            448,
+            201
+        ],
+        "test_totals": [
+            11674,
+            11274,
+            10874,
+            10474
+        ],
+        "test_precisions": [
+            30.752098680829192,
+            10.12950150789427,
+            4.119919073018209,
+            1.9190376169562726
+        ],
+        "test_bp": 1.0,
+        "test_sys_len": 11674,
+        "test_ref_len": 9538,
+        "test_runtime": 183.6791,
+        "test_samples_per_second": 2.178,
+        "test_steps_per_second": 0.272
+    },
+    "checkpoint_11250": {
+        "test_loss": 5.0634355545043945,
+        "test_score": 7.431262720589081,
+        "test_counts": [
+            3740,
+            1203,
+            484,
+            221
+        ],
+        "test_totals": [
+            11817,
+            11417,
+            11017,
+            10617
+        ],
+        "test_precisions": [
+            31.64931877803165,
+            10.53691863011299,
+            4.3932104928746485,
+            2.0815672977300554
+        ],
+        "test_bp": 1.0,
+        "test_sys_len": 11817,
+        "test_ref_len": 9538,
+        "test_runtime": 176.9303,
+        "test_samples_per_second": 2.261,
+        "test_steps_per_second": 0.283
+    },
+    "checkpoint_15000": {
+        "test_loss": 5.047999858856201,
+        "test_score": 7.844153486730886,
+        "test_counts": [
+            3747,
+            1213,
+            482,
+            213
+        ],
+        "test_totals": [
+            11146,
+            10746,
+            10346,
+            9946
+        ],
+        "test_precisions": [
+            33.6174412345236,
+            11.287921086916063,
+            4.658805335395322,
+            2.141564448019304
+        ],
+        "test_bp": 1.0,
+        "test_sys_len": 11146,
+        "test_ref_len": 9538,
+        "test_runtime": 164.6262,
+        "test_samples_per_second": 2.43,
+        "test_steps_per_second": 0.304
+    },
+    "checkpoint_18750": {
+        "test_loss": 5.033029556274414,
+        "test_score": 7.613111846197417,
+        "test_counts": [
+            3764,
+            1223,
+            490,
+            223
+        ],
+        "test_totals": [
+            11671,
+            11271,
+            10871,
+            10471
+        ],
+        "test_precisions": [
+            32.250878245223205,
+            10.850856179575903,
+            4.507405022537025,
+            2.1296915289848153
+        ],
+        "test_bp": 1.0,
+        "test_sys_len": 11671,
+        "test_ref_len": 9538,
+        "test_runtime": 173.986,
+        "test_samples_per_second": 2.299,
+        "test_steps_per_second": 0.287
+    },
+    "checkpoint_20000": {
+        "test_loss": 5.03148078918457,
+        "test_score": 8.243086702024259,
+        "test_counts": [
+            3751,
+            1249,
+            512,
+            234
+        ],
+        "test_totals": [
+            11110,
+            10710,
+            10310,
+            9910
+        ],
+        "test_precisions": [
+            33.76237623762376,
+            11.661998132586367,
+            4.966052376333657,
+            2.3612512613521695
+        ],
+        "test_bp": 1.0,
+        "test_sys_len": 11110,
+        "test_ref_len": 9538,
+        "test_runtime": 335.4047,
+        "test_samples_per_second": 1.193,
+        "test_steps_per_second": 0.149
+    },
+    "checkpoint_21250": {
+        "test_loss": 5.02895975112915,
+        "test_score": 7.993156599572968,
+        "test_counts": [
+            3819,
+            1278,
+            510,
+            227
+        ],
+        "test_totals": [
+            11456,
+            11056,
+            10656,
+            10256
+        ],
+        "test_precisions": [
+            33.336243016759774,
+            11.559334298118669,
+            4.786036036036036,
+            2.2133385335413416
+        ],
+        "test_bp": 1.0,
+        "test_sys_len": 11456,
+        "test_ref_len": 9538,
+        "test_runtime": 348.1424,
+        "test_samples_per_second": 1.149,
+        "test_steps_per_second": 0.144
+    }
+}
